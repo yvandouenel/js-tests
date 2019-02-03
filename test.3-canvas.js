@@ -67,7 +67,7 @@ function Snake(body, direction) {
       this.body[0] > -5 &&
       this.body[1] > -5
     ) {
-      setTimeout(function() {
+      setTimeout(function() { 
         ctx.save();
         ctx.clearRect(0, 0, canvas_width, canvas_height); // effacer le canvas
         ctx.fillStyle = "rgb(255 0 0)";
@@ -76,13 +76,18 @@ function Snake(body, direction) {
         ctx.fillRect(snake.body[0], snake.body[1], block_size, block_size);
         if (Math.abs(snake.body[0] - apple.body[0]) < block_size && 
           Math.abs(snake.body[1] - apple.body[1]) < block_size) {
-          console.log("Un point de plus !"); 
+          console.log("Un point de plus !!!"); 
           score.setScore(score.score + 1); 
           if(score.score % 3 == 0) snake.speed = Math.round(snake.speed / 1.5);
           apple = new Apple([getRandomInt(0, (canvas_width - block_size)), getRandomInt(0, (canvas_height - block_size))]);     
         }
-        snake.animate();
-      }, snake.speed);
+        this.animate();
+        /*
+        Par défaut lorsque l'on fait appel à la fonction setTimeout, le code s'éxécute dans le contexte
+        global et le this vaut donc "window". Pour que le this soit bien celui du contexte d'éxécution de 
+        l'objet, il faut le "binder" : .bind(this)
+        */
+      }.bind(this), this.speed);
     } else {
       touch_border = true;
       console.log("bord touché");
