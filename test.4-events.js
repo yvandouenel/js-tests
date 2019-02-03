@@ -2,13 +2,7 @@ const div = document.getElementById("test-event");
 div.onclick = function() {
     console.log("click!");
 }
-/**
- * Ajouter une méthode au prototype d'Object
- */
-Object.prototype.addText = function (text) {
-    t = document.createTextNode(text);
-    this.appendChild(t);
-}
+
 
 /**
  * créer plusieurs éléments du dom et les ajouter au dom

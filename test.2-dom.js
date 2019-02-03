@@ -1,5 +1,5 @@
 /**
- * créer un élément du dom, l'ajouter au dom, voir ses propriété, modifier ses propriétés
+ * créer un élément du dom, l'ajouter au dom, voir ses propriétés, modifier ses propriétés
  */
 const div = document.createElement("div");
 let text = document.createTextNode("Texte");
