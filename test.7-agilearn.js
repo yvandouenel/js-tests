@@ -1,11 +1,10 @@
 /*
     Le concept de base est de créer un tableau dans lequel
     on va créer des colonnes dans lesquelles on va créer des cartes
-    A ce niveau, on aura vu comment :
-    - isoler du code avec une IIFI qui renvoie l'objet tableau
-    - créer des objets à partir de constructeurs
-    - ajouter une méthode à un constructeur via le prototype
-    - associer ces objets à des événements grâce à self ou à bind
+    A partir du précédent script, on va pouvoir
+    - ajouter le mécanisme pour supprimer une carte
+    - ajouter le mécanisme pour modifier les cartes (question et réponse)
+    - ajouter le mécanisme pour déplacer une carte d'une colonne à l'autre
 */
 "use strict";
 const tableau = (function() {
