@@ -30,3 +30,27 @@ Person.prototype.sayHello = function() {
 if (bob.sayHello === billy.sayHello) console.log("même méthode");
 else console.log("Pas la même méthode");
 
+// propriété __proto__
+
+  console.log(bob.__proto__ == Person.prototype);
+  console.log(bob.__proto__.__proto__ == Object.prototype);
+
+// chaîne des prototype 
+const tab = [1,2];
+console.log(tab.__proto__);
+console.log(tab.__proto__.__proto__);
+
+// classe
+class Personne {
+    constructor(name) {
+      this.name = name;
+    }
+    
+   present() {
+      console.log("hello, I'm " + this.name);
+   }
+  }
+  
+  p = new Personne("Bob");
+  p.present();
+  console.log(p);
