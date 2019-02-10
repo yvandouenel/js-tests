@@ -21,7 +21,7 @@ const tableau = (function() {
     }
 
     createColonne(nom) {
-      let col = new Colonne(nom);
+      let col = new Colonne(nom, this);
       this.colonnes.push(col);
     }
 
@@ -34,18 +34,18 @@ const tableau = (function() {
 
   class Colonne {
     //constructeur de la colonne
-    constructor(nom) {
-      const self = this;
+    constructor(nom, tableau) {
       this.nom = nom;
+      this.tableau = tableau;
       this.cartes = [];
       this.elementCol = document.createElement("div");
       this.buttonPlus = document.createElement("div");
 
       // gestion des événements
       this.buttonPlus.onclick = function(e) {
-        const newCarte = self.createCarte("question", "réponse");
+        const newCarte = this.createCarte("question", "réponse");
         newCarte.drawCarte();
-      };
+      }.bind(this);
     }
 
     // Méthodes
@@ -53,7 +53,7 @@ const tableau = (function() {
       this.nom = newnom;
     }
     createCarte(question, reponse) {
-      let carte = new Carte(question, reponse, this);
+      let carte = new Carte(question, reponse, this, this.tableau);
       this.cartes.push(carte);
       return carte;
     }
@@ -83,10 +83,11 @@ const tableau = (function() {
   
   class Carte {
     // constructeur de la carte
-    constructor(question, reponse, colonne) {
+    constructor(question, reponse, colonne, tableau) {
       this.question = question;
       this.reponse = reponse;
       this.colonne = colonne;
+      this.tableau = tableau;
       this.elementCarte = document.createElement("div");
       this.elementQuestion = document.createElement("div");
       this.elementReponse = document.createElement("div");
@@ -94,6 +95,7 @@ const tableau = (function() {
       this.elementModify = document.createElement("div");
       this.elementInputQuestion = document.createElement("input");
       this.elementInputReponse = document.createElement("input");
+      this.elementMoveRight = document.createElement("div");
 
       // gestion des événements : le bind permet d'associer l'objet carte à ses éléments enfants
       this.elementQuestion.onclick = function(e) {
@@ -106,7 +108,10 @@ const tableau = (function() {
       }.bind(this);
 
       this.elementDelete.onclick = function(e) {
-        this.deleteCarte();
+        const result = confirm("Sûr.e de vouloir supprimer cette carte ?");
+        if (result) {
+          this.deleteCarte();
+        }
       }.bind(this);
 
       this.elementModify.onclick = function(e) {
@@ -126,6 +131,7 @@ const tableau = (function() {
         this.elementInputQuestion.style.display = "none";
         this.elementInputReponse.style.display = "none";
       }.bind(this);
+
       this.elementInputReponse.onblur = function(e) {
         this.setReponse(this.elementInputQuestion.value);
         this.elementReponse.textContent = this.elementInputReponse.value;
@@ -138,6 +144,10 @@ const tableau = (function() {
         // Cache les éléments de formulaire
         this.elementInputQuestion.style.display = "none";
         this.elementInputReponse.style.display = "none";
+      }.bind(this);
+
+      this.elementMoveRight.onclick = function(e) {
+        this.moveRight();
       }.bind(this);
       
     }
@@ -200,30 +210,59 @@ const tableau = (function() {
       this.elementInputReponse.defaultValue = this.reponse; 
       this.elementCarte.appendChild(this.elementInputReponse);
       this.elementInputReponse.style.display = "none";
+
+      // flèche droite
+      text = document.createTextNode("->");
+      this.elementMoveRight.appendChild(text);
+      this.elementCarte.appendChild(this.elementMoveRight);
+      this.elementMoveRight.style.float = "right";
     }
-    deleteCarte(){
-      console.log("Effacer la carte");
+    deleteCarte() {
       // 1 supprimer la carte du tableau de cartes de la colonne
-      console.log(this.colonne.cartes.length);
        this.colonne.cartes.splice( this.colonne.cartes.indexOf(this, 1 ) );
-       console.log(this.colonne.cartes.length);
 
        // 2 supprimer l'element du dom qui correspond à cette carte
        this.elementCarte.parentNode.removeChild(this.elementCarte);
+    }
+    moveRight() {
+      // 1 supprimer la carte du tableau de cartes de la colonne
+      this.colonne.cartes.splice( this.colonne.cartes.indexOf(this, 1 ) );
+      /* 2 Ajouter l'element du dom qui correspond à cette carte à la colonne suivante
+       1.1 - Vérifie s'il y a bien une colonne de plus... 
+      */
+      let num_col = this.tableau.colonnes.indexOf(this.colonne, 1);
+      if (num_col == -1) num_col = 0;
+      console.log("Numéro de colonne ce cette carte : " + num_col);
+      console.log("Nombre de colonnes : " + this.tableau.colonnes.length);
+      if(this.tableau.colonnes.length - num_col > 1) {
+        this.tableau.colonnes[num_col+1].cartes.push(this);
+        this.colonne = this.tableau.colonnes[num_col+1];
+        this.tableau.colonnes[num_col+1].elementCol.appendChild(this.elementCarte);
+      }
+
+      //this.elementCarte.parentNode.removeChild(this.elementCarte);
+
     }
   }
   
   // retourne l'objet tableau qui est public puisque créé dans le SCOPE global
   return new Tableau("anonyme");
 })();
+
 //tableau.createColonne("En cours d'acquisition");
 tableau.setTableauNom("js");
 // colonnes
-tableau.createColonne("En cours d'acquisition");
+tableau.createColonne("En cours d'acquisition", tableau);
 tableau.colonnes[0].drawColonne();
 
 tableau.createColonne("Je sais un peu");
 tableau.colonnes[1].drawColonne();
+
+tableau.createColonne("Je sais bien");
+tableau.colonnes[2].drawColonne();
+
+tableau.createColonne("Je sais très bien");
+tableau.colonnes[3].drawColonne();
 
 // carte
 tableau.colonnes[0].createCarte(
