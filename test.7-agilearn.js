@@ -3,7 +3,7 @@
     on va créer des colonnes dans lesquelles on va créer des cartes
     A partir du précédent script, on va pouvoir
     - utiliser les class à la place des fonctions constructeur
-    - ajouter le mécanisme pour supprimer une carte
+    - ajouter le mécanisme pour supprimer une carte : utilisation de splice et de removeChild
     - ajouter le mécanisme pour modifier les cartes (question et réponse)
     - ajouter le mécanisme pour déplacer une carte d'une colonne à l'autre
 */
@@ -53,7 +53,7 @@ const tableau = (function() {
       this.nom = newnom;
     }
     createCarte(question, reponse) {
-      let carte = new Carte(question, reponse, this.elementCol);
+      let carte = new Carte(question, reponse, this);
       this.cartes.push(carte);
       return carte;
     }
@@ -86,13 +86,17 @@ const tableau = (function() {
     constructor(question, reponse, colonne) {
       this.question = question;
       this.reponse = reponse;
-      this.elementColonne = colonne;
+      this.colonne = colonne;
       this.elementCarte = document.createElement("div");
+      this.elementQuestion = document.createElement("div");
       this.elementReponse = document.createElement("div");
       this.elementDelete = document.createElement("div");
+      this.elementModify = document.createElement("div");
+      this.elementInputQuestion = document.createElement("input");
+      this.elementInputReponse = document.createElement("input");
 
-      // gestion des événements
-      this.elementCarte.onclick = function(e) {
+      // gestion des événements : le bind permet d'associer l'objet carte à ses éléments enfants
+      this.elementQuestion.onclick = function(e) {
         if (this.elementReponse.style.display == "none") {
           this.elementReponse.style.display = "block";
         } else {
@@ -100,8 +104,40 @@ const tableau = (function() {
         }
         this.elementReponse.style.border = "thick solid #FFFF00";
       }.bind(this);
+
       this.elementDelete.onclick = function(e) {
         this.deleteCarte();
+      }.bind(this);
+
+      this.elementModify.onclick = function(e) {
+        this.showFormElements();
+      }.bind(this);
+
+      this.elementInputQuestion.onblur = function(e) {
+        this.setQuestion(this.elementInputQuestion.value);
+        this.elementQuestion.textContent = this.elementInputQuestion.value;
+        
+        // Affiche à nouveau les éléments de la carte
+        const all_elements = this.elementCarte.childNodes; 
+        for(let i = 0; i < all_elements.length; i++) {
+          all_elements[i].style.display = "block";
+        }
+        // Cache les éléments de formulaire
+        this.elementInputQuestion.style.display = "none";
+        this.elementInputReponse.style.display = "none";
+      }.bind(this);
+      this.elementInputReponse.onblur = function(e) {
+        this.setReponse(this.elementInputQuestion.value);
+        this.elementReponse.textContent = this.elementInputReponse.value;
+        
+        // Affiche à nouveau les éléments de la carte
+        const all_elements = this.elementCarte.childNodes; 
+        for(let i = 0; i < all_elements.length; i++) {
+          all_elements[i].style.display = "block";
+        }
+        // Cache les éléments de formulaire
+        this.elementInputQuestion.style.display = "none";
+        this.elementInputReponse.style.display = "none";
       }.bind(this);
       
     }
@@ -113,6 +149,16 @@ const tableau = (function() {
     setReponse(newreponse) {
       this.reponse = newreponse;
     };
+    showFormElements() {
+      // cache tous les éléments de la carte
+      const all_elements = this.elementCarte.childNodes; 
+      for(let i = 0; i < all_elements.length; i++) {
+        all_elements[i].style.display = "none";
+      }
+
+      this.elementInputQuestion.style.display = "block";
+      this.elementInputReponse.style.display = "block";
+    }
     drawCarte() {
       // Carte
       this.elementCarte.setAttribute("id", "col1");
@@ -120,11 +166,16 @@ const tableau = (function() {
       this.elementCarte.style.width = "290px";
       this.elementCarte.style.border = "thick solid #000000";
     
+      // bouton modify
+      let text = document.createTextNode("Modifier");
+      this.elementModify.appendChild(text);
+      this.elementCarte.appendChild(this.elementModify);
   
       // Question
-      let text = document.createTextNode(this.question);
-      this.elementCarte.appendChild(text);
-      this.elementColonne.appendChild(this.elementCarte);
+      text = document.createTextNode(this.question);
+      this.elementQuestion.appendChild(text);
+      this.elementCarte.appendChild(this.elementQuestion);
+      this.colonne.elementCol.appendChild(this.elementCarte); // ajout de la carte à la colonne
   
       // réponse
       text = document.createTextNode(this.reponse);
@@ -136,9 +187,29 @@ const tableau = (function() {
       text = document.createTextNode("Supprimer");
       this.elementDelete.appendChild(text);
       this.elementCarte.appendChild(this.elementDelete);
+
+      // Crée et cache les éléments du formulaire
+      this.elementInputQuestion.type = "text";
+      this.elementInputQuestion.className = "input-question"; 
+      this.elementInputQuestion.defaultValue = this.question; 
+      this.elementCarte.appendChild(this.elementInputQuestion);
+      this.elementInputQuestion.style.display = "none";
+
+      this.elementInputReponse.type = "text";
+      this.elementInputReponse.className = "input-reponse"; 
+      this.elementInputReponse.defaultValue = this.reponse; 
+      this.elementCarte.appendChild(this.elementInputReponse);
+      this.elementInputReponse.style.display = "none";
     }
     deleteCarte(){
       console.log("Effacer la carte");
+      // 1 supprimer la carte du tableau de cartes de la colonne
+      console.log(this.colonne.cartes.length);
+       this.colonne.cartes.splice( this.colonne.cartes.indexOf(this, 1 ) );
+       console.log(this.colonne.cartes.length);
+
+       // 2 supprimer l'element du dom qui correspond à cette carte
+       this.elementCarte.parentNode.removeChild(this.elementCarte);
     }
   }
   
