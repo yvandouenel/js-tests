@@ -2,11 +2,8 @@
     Le concept de base est de créer un tableau dans lequel
     on va créer des colonnes dans lesquelles on va créer des cartes
     A partir du précédent script, on va pouvoir
-    - utiliser les class à la place des fonctions constructeur
-    - ajouter le mécanisme pour supprimer une carte : utilisation de splice et de removeChild
-    - ajouter le mécanisme pour modifier les cartes (question et réponse) : création d'éléments de type input
-    - ajouter le mécanisme pour déplacer une carte d'une colonne à l'autre : 
-      oblige la carte à savoir dans quel tableau et quelle colonne il se trouve
+    - utiliser la gestion des événement clavier pour vérifier si une carte est en train d'être modifiée
+    - ajouter les css
 */
 "use strict";
 const tableau = (function() {
@@ -15,6 +12,33 @@ const tableau = (function() {
     constructor(nom) {
       this.nom = nom;
       this.colonnes = [];
+      this.carteBeingModify = false;
+
+      // Gestion des événements au clavier
+      document.onkeydown = function handleKeyDown(e) {
+        let key = e.keyCode;
+        switch (key) {
+          case 13:
+            if(this.carteBeingModify) {
+              this.carteBeingModify.setQuestion(this.carteBeingModify.elementInputQuestion.value);
+              this.carteBeingModify.elementQuestion.textContent = this.carteBeingModify.elementInputQuestion.value;
+              
+              // Affiche à nouveau les éléments de la carte
+              const all_elements = this.carteBeingModify.elementCarte.childNodes; 
+              for(let i = 0; i < all_elements.length; i++) {
+                all_elements[i].style.display = "block";
+              }
+              // Cache les éléments de formulaire
+              this.carteBeingModify.elementInputQuestion.style.display = "none";
+              this.carteBeingModify.elementInputReponse.style.display = "none";
+
+              this.carteBeingModify = false;
+            };
+            return;
+          default:
+            return;
+        }
+      }.bind(this);
     }
     // Méthodes
     setTableauNom(newnom) {
@@ -31,6 +55,7 @@ const tableau = (function() {
         this.colonnes[i].drawColonne();
       }
     }
+
   }
 
   class Colonne {
@@ -40,6 +65,7 @@ const tableau = (function() {
       this.tableau = tableau;
       this.cartes = [];
       this.elementCol = document.createElement("div");
+      this.elementColTitle = document.createElement("h1");
       this.buttonPlus = document.createElement("div");
 
       // gestion des événements
@@ -60,24 +86,24 @@ const tableau = (function() {
     }
     drawColonne() {
       let text = document.createTextNode(this.nom);
-      this.elementCol.appendChild(text);
+      this.elementColTitle.appendChild(text);
+      this.elementColTitle.setAttribute("class","colonne-h1");
+      this.elementCol.appendChild(this.elementColTitle);
       document.body.appendChild(this.elementCol);
       this.elementCol.addEventListener("click", this, false);
-      this.elementCol.setAttribute("id", "col1");
-      this.elementCol.style.height = "900px";
+      this.elementCol.setAttribute("class", "colonne");
+      this.elementCol.style.minHeight = ( window.innerHeight - 50 ) + "px";
       this.elementCol.style.width = "295px";
-      this.elementCol.style.border = "thick solid #0000FF";
       this.elementCol.style.float = "left";
       this.elementCol.style.marginRight = "40px";
 
       //Ajout du bouton d'ajout
-      text = document.createTextNode("Ajouter une carte");
+      text = document.createTextNode("+ Ajouter une carte");
       this.buttonPlus.appendChild(text);
       this.elementCol.appendChild(this.buttonPlus);
-      this.buttonPlus.setAttribute("id", "button1");
+      this.buttonPlus.setAttribute("class", "add-colonne");
       this.buttonPlus.style.height = "25px";
       this.buttonPlus.style.width = "285px";
-      this.buttonPlus.style.border = "thick solid #00FF00";
     }
   }
 
@@ -106,7 +132,6 @@ const tableau = (function() {
         } else {
           this.elementReponse.style.display = "none";
         }
-        this.elementReponse.style.border = "thick solid #FFFF00";
       }.bind(this);
 
       this.elementDelete.onclick = function(e) {
@@ -118,20 +143,6 @@ const tableau = (function() {
 
       this.elementModify.onclick = function(e) {
         this.showFormElements();
-      }.bind(this);
-
-      this.elementInputQuestion.onblur = function(e) {
-        this.setQuestion(this.elementInputQuestion.value);
-        this.elementQuestion.textContent = this.elementInputQuestion.value;
-        
-        // Affiche à nouveau les éléments de la carte
-        const all_elements = this.elementCarte.childNodes; 
-        for(let i = 0; i < all_elements.length; i++) {
-          all_elements[i].style.display = "block";
-        }
-        // Cache les éléments de formulaire
-        this.elementInputQuestion.style.display = "none";
-        this.elementInputReponse.style.display = "none";
       }.bind(this);
 
       this.elementInputReponse.onblur = function(e) {
@@ -155,7 +166,6 @@ const tableau = (function() {
       this.elementMoveLeft.onclick = function(e) {
         this.moveLeft();
       }.bind(this);
-      
     }
     
     // Méthodes
@@ -171,48 +181,54 @@ const tableau = (function() {
       for(let i = 0; i < all_elements.length; i++) {
         all_elements[i].style.display = "none";
       }
-
+      // affiche les inputs
       this.elementInputQuestion.style.display = "block";
       this.elementInputReponse.style.display = "block";
+      // Passe le tableau en mode modification
+      this.tableau.carteBeingModify = this;
     }
     drawCarte() {
       // Carte
-      this.elementCarte.setAttribute("id", "col1");
-      this.elementCarte.style.height = "200px";
-      this.elementCarte.style.width = "290px";
-      this.elementCarte.style.border = "thick solid #000000";
+      this.elementCarte.setAttribute("class", "carte");
+      this.elementCarte.style.minHeight = "100px";
     
       // bouton modify
       let text = document.createTextNode("Modifier");
       this.elementModify.appendChild(text);
+      this.elementModify.setAttribute("class", "card-modify");
       this.elementCarte.appendChild(this.elementModify);
   
       // Question
       text = document.createTextNode(this.question);
       this.elementQuestion.appendChild(text);
+      this.elementQuestion.setAttribute("class","question");
       this.elementCarte.appendChild(this.elementQuestion);
       this.colonne.elementCol.appendChild(this.elementCarte); // ajout de la carte à la colonne
   
       // réponse
       text = document.createTextNode(this.reponse);
       this.elementReponse.appendChild(text);
+      this.elementReponse.setAttribute("class","reponse");
       this.elementCarte.appendChild(this.elementReponse);
       this.elementReponse.style.display = "none";
 
       // bouton delete
-      text = document.createTextNode("Supprimer");
+      text = document.createTextNode("- Supprimer");
       this.elementDelete.appendChild(text);
+      this.elementDelete.setAttribute("class","delete-carte")
       this.elementCarte.appendChild(this.elementDelete);
 
       // Crée et cache les éléments du formulaire
       this.elementInputQuestion.type = "text";
       this.elementInputQuestion.className = "input-question"; 
+      this.elementInputQuestion.style.width = "100%"; 
       this.elementInputQuestion.defaultValue = this.question; 
       this.elementCarte.appendChild(this.elementInputQuestion);
       this.elementInputQuestion.style.display = "none";
 
       this.elementInputReponse.type = "text";
       this.elementInputReponse.className = "input-reponse"; 
+      this.elementInputReponse.style.width = "100%"; 
       this.elementInputReponse.defaultValue = this.reponse; 
       this.elementCarte.appendChild(this.elementInputReponse);
       this.elementInputReponse.style.display = "none";
@@ -222,12 +238,14 @@ const tableau = (function() {
       this.elementMoveRight.appendChild(text);
       this.elementCarte.appendChild(this.elementMoveRight);
       this.elementMoveRight.style.float = "right";
+      this.elementMoveRight.setAttribute("class","move-right");
 
       // flèche gauche
       text = document.createTextNode("<-");
       this.elementMoveLeft.appendChild(text);
       this.elementCarte.appendChild(this.elementMoveLeft);
       this.elementMoveLeft.style.float = "left";
+      this.elementMoveLeft.setAttribute("class","move-left");
     }
     deleteCarte() {
       // 1 supprimer la carte du tableau de cartes de la colonne

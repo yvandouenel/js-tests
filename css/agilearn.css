@@ -1,0 +1,79 @@
+.colonne {
+    -moz-box-shadow: 5px 5px 5px 0px #c0c0c0;
+    -webkit-box-shadow: 5px 5px 5px 0px #c0c0c0;
+    -o-box-shadow: 5px 5px 5px 0px #c0c0c0;
+    box-shadow: 5px 5px 5px 0px #c0c0c0;
+    filter: progid:DXImageTransform.Microsoft.Shadow(color=#c0c0c0, Direction=134, Strength=5);
+    -moz-border-radius: 8px;
+    -webkit-border-radius: 8px;
+    border-radius: 8px;
+    background-color: #DEE2E6;
+    padding: 5px;
+}
+
+.colonne-h1 {
+    font-family: 'Oxygen', sans-serif;
+    font-size: 1.4em;
+}
+
+.carte {
+    border-radius: 8px;
+    background-color: #FFF;
+    padding: 5px;
+    width: 96%;
+    margin-bottom: 10px;
+}
+
+.carte:after {
+    content: "";
+    display: block;
+    clear: both;
+    width: 20px;
+    height: 10px;
+}
+
+.move-right, .move-left {
+    -moz-box-shadow: 2px 2px 2px 0px #c0c0c0;
+    -webkit-box-shadow: 2px 2px 2px 0px #c0c0c0;
+    -o-box-shadow: 2px 2px 2px 0px #c0c0c0;
+    box-shadow: 2px 2px 2px 0px #c0c0c0;
+    filter: progid:DXImageTransform.Microsoft.Shadow(color=#c0c0c0, Direction=134, Strength=2);
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    padding: 3px;
+    background-color: #DEE2E6;
+    margin-top: 10px;
+}
+
+.move-right:hover, .move-left:hover {
+    cursor: pointer;
+}
+.question {
+    font-weight: bold;
+    border-bottom: 1px solid gray;
+    padding: 8px 0;
+    margin-bottom:  5px;
+    clear: both;
+}
+.question:hover {
+    cursor: pointer;
+}
+.reponse {
+    border-bottom: 1px solid gray;
+    padding: 2px 0 8px 0;
+    margin-bottom:  5px;
+    clear: both;
+}
+.card-modify,
+.delete-carte {
+    text-align: center;
+}
+.card-modify:hover,
+.delete-carte:hover {
+    cursor: pointer;
+}
+.input-question,
+.input-reponse {
+    margin: 15px 0;
+}
