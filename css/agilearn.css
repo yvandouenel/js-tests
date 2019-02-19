@@ -15,7 +15,9 @@
     font-family: 'Oxygen', sans-serif;
     font-size: 1.4em;
 }
-
+.add-colonne:hover {
+    cursor: pointer;
+}
 .carte {
     border-radius: 8px;
     background-color: #FFF;

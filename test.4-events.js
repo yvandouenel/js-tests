@@ -1,6 +1,20 @@
+const div_test = document.createElement("div");
+div_test.setAttribute("id","test-event");
+const txt = document.createTextNode("Click Me!!! ");
+div_test.appendChild(txt);
+document.body.appendChild(div_test);
+
 const div = document.getElementById("test-event");
 div.onclick = function() {
     console.log("click!");
+}
+
+/*
+    Ajout d'une méthode dans le prototype d'object
+*/
+Object.prototype.addText = function(txt) {
+    const t = document.createTextNode(txt);
+    this.appendChild(t);
 }
 
 
@@ -39,3 +53,5 @@ button.onclick = function() {
     }
     
 }
+
+
